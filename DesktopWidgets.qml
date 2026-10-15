@@ -31,21 +31,11 @@ Item {
     onLoaded: root.hostname = String(text() || "").trim()
   }
 
-  // Workspaces 1-5 plus 10 always (10 reads "0"), plus any other existing
-  // workspace up to 10. Shown 0-first: the "0" cell leads, then 1..9, so the
-  // label always matches the key you press (0 = workspace 10, 1 = workspace 1,
-  // ...), mirroring the Omarchy bar's numbering but with 0 at the front.
+  // All ten workspaces, always shown in two rows of five. Ordered 0-first so
+  // the label matches the key you press: "0" is workspace 10 and leads, then
+  // "1".."9" are workspaces 1..9. Laid out 5-per-row -> "0 1 2 3 4" / "5 6 7 8 9".
   function workspaceIds() {
-    var ids = [1, 2, 3, 4, 5, 10]
-    var values = Hyprland.workspaces.values
-    for (var i = 0; i < values.length; i++) {
-      var id = values[i].id
-      if (id > 0 && id <= 10 && ids.indexOf(id) === -1) ids.push(id)
-    }
-    ids.sort(function(left, right) {
-      return (left === 10 ? 0 : left) - (right === 10 ? 0 : right)
-    })
-    return ids
+    return [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   }
 
   function workspaceLabel(id) {
@@ -116,9 +106,11 @@ Item {
             font.bold: true
           }
 
-          Row {
+          Grid {
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: root.boxGap
+            columns: 5
+            rowSpacing: root.boxGap
+            columnSpacing: root.boxGap
 
             Repeater {
               model: root.workspaceIds()

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "local.desktop-widgets",
   "name": "Desktop widgets",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "author": "jasikor",
   "description": "A single desktop tile: machine name and a waybar-style workspace switcher, drawn on the desktop behind windows",
   "kinds": ["panel"],

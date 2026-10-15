@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "local.desktop-widgets",
+  "name": "Desktop widgets",
+  "version": "1.0.0",
+  "author": "jasikor",
+  "description": "iPad-style desktop tiles: machine name and a waybar-style workspace switcher, drawn on the desktop behind windows",
+  "kinds": ["panel"],
+  "keepLoaded": true,
+  "entryPoints": { "panel": "DesktopWidgets.qml" }
+}

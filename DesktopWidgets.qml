@@ -31,17 +31,25 @@ Item {
     onLoaded: root.hostname = String(text() || "").trim()
   }
 
-  // Workspaces 1-5 always, plus any existing workspace up to 10 (matches the
-  // Omarchy bar's own workspace widget so the two agree).
+  // Workspaces 1-5 plus 10 always (10 reads "0"), plus any other existing
+  // workspace up to 10. Shown 0-first: the "0" cell leads, then 1..9, so the
+  // label always matches the key you press (0 = workspace 10, 1 = workspace 1,
+  // ...), mirroring the Omarchy bar's numbering but with 0 at the front.
   function workspaceIds() {
-    var ids = [1, 2, 3, 4, 5]
+    var ids = [1, 2, 3, 4, 5, 10]
     var values = Hyprland.workspaces.values
     for (var i = 0; i < values.length; i++) {
       var id = values[i].id
       if (id > 0 && id <= 10 && ids.indexOf(id) === -1) ids.push(id)
     }
-    ids.sort(function(left, right) { return left - right })
+    ids.sort(function(left, right) {
+      return (left === 10 ? 0 : left) - (right === 10 ? 0 : right)
+    })
     return ids
+  }
+
+  function workspaceLabel(id) {
+    return id === 10 ? "0" : String(id)
   }
 
   function workspaceById(id) {
@@ -135,8 +143,7 @@ Item {
 
                 Text {
                   anchors.centerIn: parent
-                  // Displayed 0-based: workspace 1 reads "0", ..., 10 reads "9".
-                  text: String(wsBox.modelData - 1)
+                  text: root.workspaceLabel(wsBox.modelData)
                   color: wsBox.focused ? Color.background
                        : wsBox.occupied || wsBox.hovered ? Color.foreground
                        : Color.muted

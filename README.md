@@ -8,9 +8,10 @@ The tile shows:
 
 - **Machine** — this machine's hostname (read from `/etc/hostname`, falling
   back to `$HOSTNAME`).
-- **Workspaces** — a waybar-style row of workspace numbers that doubles as a
-  switcher: the focused workspace is filled with the accent colour, occupied
-  ones are outlined, empty ones are dimmed. Click a number to switch.
+- **Workspaces** — a waybar-style row of workspace numbers (counting from `0`)
+  that doubles as a switcher: the focused workspace is filled with the accent
+  colour, occupied ones are outlined, empty ones are dimmed. Click a number to
+  switch. The row shows `0`–`4` always, plus any existing workspace up to `9`.
 
 ## How it works
 
@@ -53,8 +54,9 @@ The layout is deliberately small; adjust the constants at the top of
 | `boxGap`   | `Style.space(4)`   | Gap between workspace number boxes.                     |
 | `margins.left` | `Style.space(48)` | Distance from the left screen edge.                  |
 
-Which workspaces show follows the Omarchy bar's own widget: `1`–`5` always,
-plus any existing workspace up to `10`.
+Which workspaces show mirrors the Omarchy bar's own widget, but the labels are
+0-based: workspaces `1`–`5` (shown as `0`–`4`) always, plus any existing
+workspace up to `10` (shown as `9`).
 
 ## Removal
 

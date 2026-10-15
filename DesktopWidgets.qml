@@ -135,7 +135,8 @@ Item {
 
                 Text {
                   anchors.centerIn: parent
-                  text: wsBox.modelData === 10 ? "0" : String(wsBox.modelData)
+                  // Displayed 0-based: workspace 1 reads "0", ..., 10 reads "9".
+                  text: String(wsBox.modelData - 1)
                   color: wsBox.focused ? Color.background
                        : wsBox.occupied || wsBox.hovered ? Color.foreground
                        : Color.muted

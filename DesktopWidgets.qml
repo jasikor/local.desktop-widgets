@@ -6,12 +6,13 @@ import Quickshell.Wayland
 import qs.Commons
 import qs.Ui
 
-// Desktop widgets: iPad-style tiles that live *on* the desktop.
+// A single desktop widget: laptop name on top, a waybar-style workspace row
+// underneath, in one tile that lives *on* the desktop.
 //
-// The whole surface is a PanelWindow on the *Bottom* layer pinned to the left
-// edge and centred vertically, sized to its content so it never blocks clicks
-// meant for the rest of the desktop. Being on the Bottom layer it draws above
-// the wallpaper but below every normal window: fully visible on an empty
+// The tile is a PanelWindow on the *Bottom* layer pinned to the left edge and
+// centred vertically, sized to its content so it never blocks clicks meant for
+// the rest of the desktop. Being on the Bottom layer it draws above the
+// wallpaper but below every normal window: fully visible on an empty
 // workspace, naturally covered the moment a window is opened over it.
 Item {
   id: root
@@ -74,8 +75,8 @@ Item {
       // Left edge, vertically centred: no top/bottom anchor centres the axis.
       anchors { left: true; right: false; top: false; bottom: false }
       margins.left: Style.space(48)
-      implicitWidth: column.implicitWidth
-      implicitHeight: column.implicitHeight
+      implicitWidth: card.width
+      implicitHeight: card.height
       color: "transparent"
 
       WlrLayershell.namespace: "desktop-widgets"
@@ -83,62 +84,32 @@ Item {
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-      Column {
-        id: column
-        spacing: Style.space(12)
+      BorderSurface {
+        id: card
 
-        // ------------------------------------------------------ machine tile
-        BorderSurface {
-          id: machineCard
+        width: content.implicitWidth + root.pad * 2
+        height: content.implicitHeight + root.pad * 2
 
-          // Match the workspace tile's width so the column reads as one stack.
-          width: workspaceCard.width
-          height: machineColumn.implicitHeight + root.pad * 2
+        color: Util.alpha(Color.popups.background, 0.9)
+        borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.space(2)))
+        radius: Style.cornerRadius
 
-          color: Util.alpha(Color.popups.background, 0.9)
-          borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.space(2)))
-          radius: Style.cornerRadius
+        Column {
+          id: content
+          anchors.centerIn: parent
+          spacing: Style.space(8)
 
-          Column {
-            id: machineColumn
-            anchors.centerIn: parent
-            spacing: Style.space(4)
-
-            Text {
-              anchors.horizontalCenter: parent.horizontalCenter
-              text: "MACHINE"
-              color: Color.muted
-              font.family: Style.font.family
-              font.pixelSize: Style.font.caption
-              font.letterSpacing: Style.space(1)
-              font.bold: true
-            }
-
-            Text {
-              anchors.horizontalCenter: parent.horizontalCenter
-              text: root.hostname
-              color: Color.foreground
-              font.family: Style.font.family
-              font.pixelSize: Style.font.heading
-              font.bold: true
-            }
+          Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: root.hostname
+            color: Color.foreground
+            font.family: Style.font.family
+            font.pixelSize: Style.font.heading
+            font.bold: true
           }
-        }
-
-        // --------------------------------------------------- workspaces tile
-        BorderSurface {
-          id: workspaceCard
-
-          width: workspaceRow.implicitWidth + root.pad * 2
-          height: workspaceRow.implicitHeight + root.pad * 2
-
-          color: Util.alpha(Color.popups.background, 0.9)
-          borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.space(2)))
-          radius: Style.cornerRadius
 
           Row {
-            id: workspaceRow
-            anchors.centerIn: parent
+            anchors.horizontalCenter: parent.horizontalCenter
             spacing: root.boxGap
 
             Repeater {

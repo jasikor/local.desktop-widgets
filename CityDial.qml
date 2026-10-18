@@ -34,10 +34,10 @@ Item {
   width: implicitWidth
   height: implicitHeight
 
-  // One IWC-style hand, pointing at 12. There is almost no stem: the round
-  // hub sits nearly on top of the blade, which flares straight out of it into
-  // a triangle and tapers to a point. The lume fills that triangle and only a
-  // thin black outline is left.
+  // One IWC-style hand, pointing at 12: a triangular blade that starts right
+  // at the central hub, with the lume filling almost all of it and only a
+  // thin black outline and a short point left. There is no visible neck; the
+  // small flare at the base sits under the hub.
   component PilotHand: Item {
     id: hand
 
@@ -46,11 +46,11 @@ Item {
 
     property real angle: 0
     property real handLength: 0.285
-    property real stemHalf: 0.010
-    property real stemEnd: 0.035
+    property real stemHalf: 0.030
+    property real stemEnd: 0.020
     property real bladeHalf: 0.046
-    property real shoulder: 0.065
-    property real lumeStart: 0.050
+    property real shoulder: 0.040
+    property real lumeStart: 0.030
     property real frameBorder: 0.005
 
     Canvas {
@@ -183,11 +183,11 @@ Item {
     PilotHand {
       angle: (root.hours % 12) * 30 + root.minutes * 0.5
       handLength: 0.285
-      stemHalf: 0.010
-      stemEnd: 0.035
+      stemHalf: 0.030
+      stemEnd: 0.020
       bladeHalf: 0.046
-      shoulder: 0.065
-      lumeStart: 0.050
+      shoulder: 0.040
+      lumeStart: 0.030
       frameBorder: 0.005
     }
 
@@ -195,11 +195,11 @@ Item {
     PilotHand {
       angle: root.minutes * 6
       handLength: 0.39
-      stemHalf: 0.008
-      stemEnd: 0.04
+      stemHalf: 0.022
+      stemEnd: 0.020
       bladeHalf: 0.034
-      shoulder: 0.07
-      lumeStart: 0.055
+      shoulder: 0.040
+      lumeStart: 0.030
       frameBorder: 0.004
     }
 

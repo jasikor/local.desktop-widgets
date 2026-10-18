@@ -15,8 +15,8 @@ The tile shows:
   Click a number to switch.
 - **World clocks** — four analog watches, one below the other, each with its
   city name on the dial (Zurich, Toronto, Miami, Tokyo). Hands follow the IWC
-  Pilot's Watch Mark XX: a triangular blade emerging almost directly from the
-  hub, with a thin black frame around a white lume inlay, twelve ticks, no
+  Pilot's Watch Mark XX: a triangular blade emerging from the central hub,
+  with a thin black frame around a white lume inlay, twelve ticks, no
   numerals, date or seconds hand. The dial is dim warm grey while it is
   daytime in that city (07:00–21:00) and dark grey at night, so the tile
   doubles as a "who is awake" map.

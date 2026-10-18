@@ -14,10 +14,11 @@ The tile shows:
   with the accent colour, occupied ones are outlined, empty ones are dimmed.
   Click a number to switch.
 - **World clocks** — four analog watches, one below the other, each with its
-  city name on the dial (Zurich, Toronto, Miami, Tokyo). Hour and minute hands,
-  twelve ticks, no numerals, date or seconds hand. The dial is white while it
-  is daytime in that city (07:00–21:00) and dark grey at night, so the tile
-  doubles as a "who is awake" map.
+  city name on the dial (Zurich, Toronto, Miami, Tokyo). Pilot-style hour and
+  minute hands with lume-filled centres, twelve ticks, no numerals, date or
+  seconds hand. The dial is dim cream while it is daytime in that city
+  (07:00–21:00) and dark grey at night, so the tile doubles as a "who is
+  awake" map.
 
 ## How it works
 

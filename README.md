@@ -61,7 +61,7 @@ panel window itself is not rebuilt by a hot reload.
 | `boxSize`  | `Style.space(24)`  | Side length of a workspace number box.                  |
 | `boxGap`   | `Style.space(4)`   | Gap between workspace number boxes.                     |
 | `margins.left` | `Style.space(48)` | Distance from the left screen edge.                  |
-| `dialSize` | `Style.space(64)`  | Diameter of a world-clock dial (`CityDial.qml`).        |
+| `dialSize` | `Style.space(88)`  | Diameter of a world-clock dial (`CityDial.qml`).        |
 
 The clock cities and their IANA zones live in the `cities` array at the top of
 `DesktopWidgets.qml`; the watches are rendered by `CityDial.qml`. Times are

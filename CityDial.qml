@@ -11,15 +11,17 @@ Item {
   property string city: ""
   property int hours: 0
   property int minutes: 0
-  property real dialSize: Style.space(64)
+  property real dialSize: Style.space(88)
 
   // Day runs 07:00-21:00 city time.
   readonly property bool daytime: hours >= 7 && hours < 21
 
-  readonly property color faceColor: daytime ? "#f5f4f0" : "#0c0c0e"
-  readonly property color inkColor: daytime ? "#161615" : "#f2f1ec"
-  readonly property color rimColor: daytime ? Util.alpha("#161615", 0.28)
-                                              : Util.alpha("#f2f1ec", 0.30)
+  // Muted faces: warm paper rather than pure white, and charcoal rather than
+  // black, so four dials on one card do not glare against the wallpaper.
+  readonly property color faceColor: daytime ? "#ddd9cf" : "#2a2a2d"
+  readonly property color inkColor: daytime ? "#1b1b19" : "#e9e7e0"
+  readonly property color rimColor: daytime ? Util.alpha("#1b1b19", 0.25)
+                                              : Util.alpha("#e9e7e0", 0.20)
 
   implicitWidth: dialSize
   implicitHeight: dialSize + Style.space(6) + label.implicitHeight

@@ -20,6 +20,7 @@ Item {
   readonly property int pad: Style.space(12)
   readonly property int boxSize: Style.space(24)
   readonly property int boxGap: Style.space(4)
+  readonly property int dialSize: Style.space(88)
 
   // Machine name. Env first, /etc/hostname authoritative fallback.
   property string hostname: Quickshell.env("HOSTNAME") || ""
@@ -235,6 +236,7 @@ Item {
                 required property int index
 
                 city: modelData.name
+                dialSize: root.dialSize
                 hours: root.zoneTimes[index] ? root.zoneTimes[index].hours : 0
                 minutes: root.zoneTimes[index] ? root.zoneTimes[index].minutes : 0
               }

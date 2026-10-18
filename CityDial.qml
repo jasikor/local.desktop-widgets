@@ -23,8 +23,9 @@ Item {
   readonly property color rimColor: daytime ? Util.alpha("#1b1b19", 0.25)
                                               : Util.alpha("#e9e7e0", 0.20)
 
-  // Black-and-white pilot hands in the Mark XX leaf shape: a black frame
-  // around a white lume inlay, with a constant frame width along the blade.
+  // Black-and-white pilot hands in the Mark XX triangular shape: a black
+  // frame around a white lume inlay, with a constant frame width along the
+  // blade.
   readonly property color handFrameColor: "#111112"
   readonly property color lumeColor: "#f8f6ef"
 
@@ -33,10 +34,10 @@ Item {
   width: implicitWidth
   height: implicitHeight
 
-  // One IWC-style hand, pointing at 12. A thin stem leaves the centre, flares
-  // into a leaf-shaped blade, then tapers to a point. The lume is the blade
-  // outline inset by a fixed border, so the black edge never grows thicker
-  // towards the centre.
+  // One IWC-style hand, pointing at 12. There is almost no stem: the round
+  // hub sits nearly on top of the blade, which flares straight out of it into
+  // a triangle and tapers to a point. The lume fills that triangle and only a
+  // thin black outline is left.
   component PilotHand: Item {
     id: hand
 
@@ -44,13 +45,13 @@ Item {
     rotation: hand.angle
 
     property real angle: 0
-    property real handLength: 0.29
-    property real stemHalf: 0.011
-    property real stemEnd: 0.075
+    property real handLength: 0.285
+    property real stemHalf: 0.010
+    property real stemEnd: 0.035
     property real bladeHalf: 0.046
-    property real shoulder: 0.11
-    property real lumeStart: 0.095
-    property real frameBorder: 0.007
+    property real shoulder: 0.065
+    property real lumeStart: 0.050
+    property real frameBorder: 0.005
 
     Canvas {
       id: handCanvas
@@ -77,52 +78,42 @@ Item {
         var shoulder = hand.shoulder
         var border = hand.frameBorder
 
-        // Half-width of the frame at a distance `h` from the centre. The
-        // blade uses a convex taper: it stays wide through the middle and
-        // sharpens over the last third, like the reference hands.
+        // Half-width of the frame at a distance `h` from the centre: a short
+        // neck, a quick flare, then a straight triangle to the tip.
         function frameHalfAt(h) {
           if (h <= stemEnd) return stem
           if (h <= shoulder) return stem + (blade - stem) * (h - stemEnd) / (shoulder - stemEnd)
-          return blade * Math.pow((length - h) / (length - shoulder), 0.7)
+          return blade * (length - h) / (length - shoulder)
         }
-
-        var step = 0.004
-        var h
 
         ctx.clearRect(0, 0, width, height)
 
-        // Frame: stem, flare, then the convex blade to a sharp point.
+        // Frame: barely-there neck, wide triangular blade.
         ctx.beginPath()
         ctx.moveTo(cx - stem * d, cy + 0.012 * d)
         ctx.lineTo(cx - stem * d, cy - stemEnd * d)
-        for (h = stemEnd + step; h < length - step; h += step)
-          ctx.lineTo(cx - frameHalfAt(h) * d, cy - h * d)
+        ctx.lineTo(cx - blade * d, cy - shoulder * d)
         ctx.lineTo(cx, cy - length * d)
-        for (h = length - step; h > stemEnd; h -= step)
-          ctx.lineTo(cx + frameHalfAt(h) * d, cy - h * d)
+        ctx.lineTo(cx + blade * d, cy - shoulder * d)
         ctx.lineTo(cx + stem * d, cy - stemEnd * d)
         ctx.lineTo(cx + stem * d, cy + 0.012 * d)
         ctx.closePath()
         ctx.fillStyle = handCanvas.frameColour
         ctx.fill()
 
-        // Lume: the same blade inset by a constant border, with a blunt base
-        // and a point short of the frame tip.
-        var tip = length - (length - shoulder) * Math.pow(border / blade, 1 / 0.7)
+        // Lume fills the triangle, inset by a constant border. Blunt base at
+        // lumeStart, straight sides parallel to the frame, pointed tip just
+        // short of the frame point.
+        var tip = length - border * (length - shoulder) / blade
         var start = hand.lumeStart
         var baseHalf = Math.max(0, frameHalfAt(start) - border)
+        var shoulderHalf = blade - border
 
         ctx.beginPath()
         ctx.moveTo(cx - baseHalf * d, cy - start * d)
-        for (h = start + step; h < tip; h += step) {
-          var half = Math.max(0, frameHalfAt(h) - border)
-          ctx.lineTo(cx - half * d, cy - h * d)
-        }
+        ctx.lineTo(cx - shoulderHalf * d, cy - shoulder * d)
         ctx.lineTo(cx, cy - tip * d)
-        for (h = tip - step; h > start; h -= step) {
-          var halfBack = Math.max(0, frameHalfAt(h) - border)
-          ctx.lineTo(cx + halfBack * d, cy - h * d)
-        }
+        ctx.lineTo(cx + shoulderHalf * d, cy - shoulder * d)
         ctx.lineTo(cx + baseHalf * d, cy - start * d)
         ctx.closePath()
         ctx.fillStyle = root.lumeColor
@@ -191,30 +182,30 @@ Item {
     // repaints once a minute, so it is never an hour out at half past.
     PilotHand {
       angle: (root.hours % 12) * 30 + root.minutes * 0.5
-      handLength: 0.29
-      stemHalf: 0.011
-      stemEnd: 0.075
+      handLength: 0.285
+      stemHalf: 0.010
+      stemEnd: 0.035
       bladeHalf: 0.046
-      shoulder: 0.11
-      lumeStart: 0.095
-      frameBorder: 0.007
+      shoulder: 0.065
+      lumeStart: 0.050
+      frameBorder: 0.005
     }
 
-    // Minute hand: longer and narrower, same leaf profile and border.
+    // Minute hand: longer and narrower, same triangular profile and border.
     PilotHand {
       angle: root.minutes * 6
       handLength: 0.39
-      stemHalf: 0.009
-      stemEnd: 0.10
+      stemHalf: 0.008
+      stemEnd: 0.04
       bladeHalf: 0.034
-      shoulder: 0.13
-      lumeStart: 0.12
-      frameBorder: 0.005
+      shoulder: 0.07
+      lumeStart: 0.055
+      frameBorder: 0.004
     }
 
     Rectangle {
       anchors.centerIn: parent
-      width: Math.max(5, dial.width * 0.08)
+      width: Math.max(5, dial.width * 0.09)
       height: width
       radius: width / 2
       color: root.handFrameColor

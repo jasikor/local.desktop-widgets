@@ -31,6 +31,71 @@ Item {
     onLoaded: root.hostname = String(text() || "").trim()
   }
 
+  // ---- World clocks. Four cities, four analog dials. Times come from the
+  //      system zoneinfo rather than hardcoded UTC offsets, so daylight
+  //      saving is whatever the machine says it is — Toronto and Miami share
+  //      a zone, Zurich has its own, Tokyo never changes.
+  readonly property var cities: [
+    { name: "Zurich", zone: "Europe/Zurich" },
+    { name: "Toronto", zone: "America/Toronto" },
+    { name: "Miami", zone: "America/New_York" },
+    { name: "Tokyo", zone: "Asia/Tokyo" }
+  ]
+
+  // Wall-clock hours/minutes per city, in `cities` order. Seeded with local
+  // time so the first paint is a plausible clock rather than 12:00.
+  property var zoneTimes: root.seedZoneTimes()
+
+  function seedZoneTimes() {
+    var now = new Date()
+    var seed = []
+    for (var i = 0; i < cities.length; i++) seed.push({ hours: now.getHours(), minutes: now.getMinutes() })
+    return seed
+  }
+
+  function refreshZoneTimes() {
+    zonesProc.running = true
+  }
+
+  // One process for all four cities: four tiny `date` calls, once a minute.
+  // Keeping it to a single process avoids four timers drifting apart. The
+  // command is built from `cities`, so the zone list has one source of truth.
+  Process {
+    id: zonesProc
+    running: false
+    command: {
+      var calls = []
+      for (var i = 0; i < root.cities.length; i++)
+        calls.push("TZ=\"" + root.cities[i].zone + "\" date '+%H %M'")
+      return ["sh", "-c", calls.join("; ")]
+    }
+
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        var lines = String(text).trim().split("\n")
+        if (lines.length !== root.cities.length) return
+
+        var parsed = []
+        for (var i = 0; i < lines.length; i++) {
+          var parts = lines[i].trim().split(/\s+/)
+          var h = parseInt(parts[0], 10)
+          var m = parseInt(parts[1], 10)
+          if (isNaN(h) || isNaN(m)) return
+          parsed.push({ hours: h, minutes: m })
+        }
+        root.zoneTimes = parsed
+      }
+    }
+  }
+
+  SystemClock {
+    precision: SystemClock.Minutes
+    onDateChanged: root.refreshZoneTimes()
+  }
+
+  Component.onCompleted: root.refreshZoneTimes()
+
   // All ten workspaces, always shown in two rows of five. Ordered 0-first so
   // the label matches the key you press: "0" is workspace 10 and leads, then
   // "1".."9" are workspaces 1..9. Laid out 5-per-row -> "0 1 2 3 4" / "5 6 7 8 9".
@@ -153,6 +218,25 @@ Item {
                   anchors.fill: parent
                   onClicked: root.focusWorkspace(wsBox.modelData)
                 }
+              }
+            }
+          }
+
+          // Four watches, one per city, stacked below the workspaces.
+          Column {
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Style.space(12)
+
+            Repeater {
+              model: root.cities
+
+              CityDial {
+                required property var modelData
+                required property int index
+
+                city: modelData.name
+                hours: root.zoneTimes[index] ? root.zoneTimes[index].hours : 0
+                minutes: root.zoneTimes[index] ? root.zoneTimes[index].minutes : 0
               }
             }
           }

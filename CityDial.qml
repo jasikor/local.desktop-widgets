@@ -23,104 +23,10 @@ Item {
   readonly property color rimColor: daytime ? Util.alpha("#1b1b19", 0.25)
                                               : Util.alpha("#e9e7e0", 0.20)
 
-  // Black-and-white pilot hands in the Mark XX triangular shape: a black
-  // frame around a white lume inlay, with a constant frame width along the
-  // blade.
-  readonly property color handFrameColor: "#111112"
-  readonly property color lumeColor: "#f8f6ef"
-
   implicitWidth: dialSize
   implicitHeight: dialSize
   width: implicitWidth
   height: implicitHeight
-
-  // One IWC-style hand, pointing at 12: a triangular blade that starts right
-  // at the central hub, with the lume filling almost all of it and only a
-  // thin black outline and a short point left. There is no visible neck; the
-  // small flare at the base sits under the hub.
-  component PilotHand: Item {
-    id: hand
-
-    anchors.fill: parent
-    rotation: hand.angle
-
-    property real angle: 0
-    property real handLength: 0.285
-    property real stemHalf: 0.030
-    property real stemEnd: 0.020
-    property real bladeHalf: 0.046
-    property real shoulder: 0.040
-    property real lumeStart: 0.030
-    property real frameBorder: 0.005
-
-    Canvas {
-      id: handCanvas
-
-      anchors.fill: parent
-
-      property color frameColour: root.handFrameColor
-
-      onFrameColourChanged: requestPaint()
-      onWidthChanged: requestPaint()
-      onHeightChanged: requestPaint()
-      Component.onCompleted: requestPaint()
-
-      onPaint: {
-        var ctx = getContext("2d")
-        var d = width
-        var cx = d / 2
-        var cy = d / 2
-
-        var length = hand.handLength
-        var stem = hand.stemHalf
-        var stemEnd = hand.stemEnd
-        var blade = hand.bladeHalf
-        var shoulder = hand.shoulder
-        var border = hand.frameBorder
-
-        // Half-width of the frame at a distance `h` from the centre: a short
-        // neck, a quick flare, then a straight triangle to the tip.
-        function frameHalfAt(h) {
-          if (h <= stemEnd) return stem
-          if (h <= shoulder) return stem + (blade - stem) * (h - stemEnd) / (shoulder - stemEnd)
-          return blade * (length - h) / (length - shoulder)
-        }
-
-        ctx.clearRect(0, 0, width, height)
-
-        // Frame: barely-there neck, wide triangular blade.
-        ctx.beginPath()
-        ctx.moveTo(cx - stem * d, cy + 0.012 * d)
-        ctx.lineTo(cx - stem * d, cy - stemEnd * d)
-        ctx.lineTo(cx - blade * d, cy - shoulder * d)
-        ctx.lineTo(cx, cy - length * d)
-        ctx.lineTo(cx + blade * d, cy - shoulder * d)
-        ctx.lineTo(cx + stem * d, cy - stemEnd * d)
-        ctx.lineTo(cx + stem * d, cy + 0.012 * d)
-        ctx.closePath()
-        ctx.fillStyle = handCanvas.frameColour
-        ctx.fill()
-
-        // Lume fills the triangle, inset by a constant border. Blunt base at
-        // lumeStart, straight sides parallel to the frame, pointed tip just
-        // short of the frame point.
-        var tip = length - border * (length - shoulder) / blade
-        var start = hand.lumeStart
-        var baseHalf = Math.max(0, frameHalfAt(start) - border)
-        var shoulderHalf = blade - border
-
-        ctx.beginPath()
-        ctx.moveTo(cx - baseHalf * d, cy - start * d)
-        ctx.lineTo(cx - shoulderHalf * d, cy - shoulder * d)
-        ctx.lineTo(cx, cy - tip * d)
-        ctx.lineTo(cx + shoulderHalf * d, cy - shoulder * d)
-        ctx.lineTo(cx + baseHalf * d, cy - start * d)
-        ctx.closePath()
-        ctx.fillStyle = root.lumeColor
-        ctx.fill()
-      }
-    }
-  }
 
   Item {
     id: dial
@@ -178,45 +84,44 @@ Item {
       font.letterSpacing: Math.max(0.5, dial.width * 0.006)
     }
 
-    // Hour hand. It creeps with the minutes even though the face only
-    // repaints once a minute, so it is never an hour out at half past.
-    PilotHand {
-      angle: (root.hours % 12) * 30 + root.minutes * 0.5
-      handLength: 0.285
-      stemHalf: 0.030
-      stemEnd: 0.020
-      bladeHalf: 0.046
-      shoulder: 0.040
-      lumeStart: 0.030
-      frameBorder: 0.005
+    // Hour hand: a plain solid baton. It creeps with the minutes even though
+    // the face only repaints once a minute, so it is never an hour out at
+    // half past.
+    Item {
+      anchors.fill: parent
+      rotation: (root.hours % 12) * 30 + root.minutes * 0.5
+
+      Rectangle {
+        x: (dial.width - width) / 2
+        y: dial.height / 2 - height
+        width: Math.max(2, Math.round(dial.width * 0.05))
+        height: dial.height * 0.26
+        radius: width / 2
+        color: root.inkColor
+      }
     }
 
-    // Minute hand: longer and narrower, same triangular profile and border.
-    PilotHand {
-      angle: root.minutes * 6
-      handLength: 0.39
-      stemHalf: 0.022
-      stemEnd: 0.020
-      bladeHalf: 0.034
-      shoulder: 0.040
-      lumeStart: 0.030
-      frameBorder: 0.004
+    // Minute hand: longer and thinner, same baton shape.
+    Item {
+      anchors.fill: parent
+      rotation: root.minutes * 6
+
+      Rectangle {
+        x: (dial.width - width) / 2
+        y: dial.height / 2 - height
+        width: Math.max(1, Math.round(dial.width * 0.03))
+        height: dial.height * 0.37
+        radius: width / 2
+        color: root.inkColor
+      }
     }
 
     Rectangle {
       anchors.centerIn: parent
-      width: Math.max(5, dial.width * 0.09)
+      width: Math.max(4, dial.width * 0.065)
       height: width
       radius: width / 2
-      color: root.handFrameColor
-
-      Rectangle {
-        anchors.centerIn: parent
-        width: Math.max(2, dial.width * 0.022)
-        height: width
-        radius: width / 2
-        color: root.lumeColor
-      }
+      color: root.inkColor
     }
   }
 }

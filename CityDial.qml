@@ -3,15 +3,15 @@ import qs.Commons
 
 // One analog watch: a plain dial with an hour and a minute hand, twelve
 // ticks, no numerals, no seconds, no date. The face is white while it is
-// daytime in its city and black at night, so the four watches read as a
+// daytime in its city and dark grey at night, so the four watches read as a
 // "who is awake" map rather than four copies of the same clock.
 Item {
   id: root
 
-  property string city: ""
+  property string code: ""
   property int hours: 0
   property int minutes: 0
-  property real dialSize: Style.space(88)
+  property real dialSize: Style.space(120)
 
   // Day runs 07:00-21:00 city time.
   readonly property bool daytime: hours >= 7 && hours < 21
@@ -24,7 +24,7 @@ Item {
                                               : Util.alpha("#e9e7e0", 0.20)
 
   implicitWidth: dialSize
-  implicitHeight: dialSize + Style.space(6) + label.implicitHeight
+  implicitHeight: dialSize
   width: implicitWidth
   height: implicitHeight
 
@@ -60,13 +60,28 @@ Item {
 
           x: (dial.width - width) / 2
           y: dial.height * 0.09
-          width: major ? Math.max(1, dial.width * 0.02) : Math.max(1, dial.width * 0.012)
+          width: major ? Math.max(1, dial.width * 0.022) : Math.max(1, dial.width * 0.012)
           height: major ? dial.height * 0.07 : dial.height * 0.045
           radius: width / 2
           color: root.inkColor
           opacity: major ? 0.8 : 0.45
         }
       }
+    }
+
+    // Airport-style code where a watch brand would normally sit: between the
+    // 12 mark and the centre. Under the hands, so it never hides the time.
+    Text {
+      id: codeLabel
+
+      anchors.horizontalCenter: parent.horizontalCenter
+      y: dial.height * 0.19
+      text: root.code
+      color: Util.alpha(root.inkColor, 0.6)
+      font.family: Style.font.family
+      font.pixelSize: Math.round(dial.height * 0.10)
+      font.bold: true
+      font.letterSpacing: Math.max(0.5, dial.width * 0.008)
     }
 
     // Hour hand. It creeps with the minutes even though the face only
@@ -78,14 +93,14 @@ Item {
       Rectangle {
         x: (dial.width - width) / 2
         y: dial.height / 2 - height
-        width: Math.max(2, dial.width * 0.035)
-        height: dial.height * 0.25
+        width: Math.max(3, dial.width * 0.055)
+        height: dial.height * 0.24
         radius: width / 2
         color: root.inkColor
       }
     }
 
-    // Minute hand: longer and thinner than the hour hand.
+    // Minute hand: longer and a little thinner than the hour hand.
     Item {
       anchors.fill: parent
       rotation: root.minutes * 6
@@ -93,8 +108,8 @@ Item {
       Rectangle {
         x: (dial.width - width) / 2
         y: dial.height / 2 - height
-        width: Math.max(1, dial.width * 0.02)
-        height: dial.height * 0.37
+        width: Math.max(2, dial.width * 0.036)
+        height: dial.height * 0.35
         radius: width / 2
         color: root.inkColor
       }
@@ -102,22 +117,10 @@ Item {
 
     Rectangle {
       anchors.centerIn: parent
-      width: Math.max(3, dial.width * 0.06)
+      width: Math.max(4, dial.width * 0.075)
       height: width
       radius: width / 2
       color: root.inkColor
     }
-  }
-
-  Text {
-    id: label
-
-    anchors.top: dial.bottom
-    anchors.topMargin: Style.space(6)
-    anchors.horizontalCenter: parent.horizontalCenter
-    text: root.city
-    color: Color.muted
-    font.family: Style.font.family
-    font.pixelSize: Style.font.caption
   }
 }

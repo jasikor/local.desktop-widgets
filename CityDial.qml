@@ -94,7 +94,7 @@ Item {
       Rectangle {
         x: (dial.width - width) / 2
         y: dial.height / 2 - height
-        width: Math.max(2, Math.round(dial.width * 0.05))
+        width: Math.max(2, Math.round(dial.width * 0.04))
         height: dial.height * 0.26
         radius: width / 2
         color: root.inkColor
@@ -109,7 +109,7 @@ Item {
       Rectangle {
         x: (dial.width - width) / 2
         y: dial.height / 2 - height
-        width: Math.max(1, Math.round(dial.width * 0.03))
+        width: Math.max(1, Math.round(dial.width * 0.026))
         height: dial.height * 0.37
         radius: width / 2
         color: root.inkColor
@@ -118,7 +118,7 @@ Item {
 
     Rectangle {
       anchors.centerIn: parent
-      width: Math.max(4, dial.width * 0.065)
+      width: Math.max(3, Math.round(dial.width * 0.04))
       height: width
       radius: width / 2
       color: root.inkColor

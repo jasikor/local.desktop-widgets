@@ -13,8 +13,8 @@ The tile shows:
   workspace 10, `1`–`9` are workspaces 1–9. The focused workspace is filled
   with the accent colour, occupied ones are outlined, empty ones are dimmed.
   Click a number to switch.
-- **World clocks** — four analog watches, one below the other, labelled with
-  airport codes on the dial (ZRH, YYZ, MIA, TYO). Hour and minute hands,
+- **World clocks** — four analog watches, one below the other, each with its
+  city name on the dial (Zurich, Toronto, Miami, Tokyo). Hour and minute hands,
   twelve ticks, no numerals, date or seconds hand. The dial is white while it
   is daytime in that city (07:00–21:00) and dark grey at night, so the tile
   doubles as a "who is awake" map.
@@ -61,7 +61,7 @@ panel window itself is not rebuilt by a hot reload.
 | `boxSize`  | `Style.space(24)`  | Side length of a workspace number box.                  |
 | `boxGap`   | `Style.space(4)`   | Gap between workspace number boxes.                     |
 | `margins.left` | `Style.space(48)` | Distance from the left screen edge.                  |
-| `dialSize` | `Style.space(120)` | Diameter of a world-clock dial (`CityDial.qml`).        |
+| `dialSize` | `Style.space(100)` | Diameter of a world-clock dial (`CityDial.qml`).        |
 
 The clock cities and their IANA zones live in the `cities` array at the top of
 `DesktopWidgets.qml`; the watches are rendered by `CityDial.qml`. Times are

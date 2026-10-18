@@ -8,10 +8,10 @@ import qs.Commons
 Item {
   id: root
 
-  property string code: ""
+  property string city: ""
   property int hours: 0
   property int minutes: 0
-  property real dialSize: Style.space(120)
+  property real dialSize: Style.space(100)
 
   // Day runs 07:00-21:00 city time.
   readonly property bool daytime: hours >= 7 && hours < 21
@@ -69,19 +69,19 @@ Item {
       }
     }
 
-    // Airport-style code where a watch brand would normally sit: between the
-    // 12 mark and the centre. Under the hands, so it never hides the time.
+    // City name where a watch brand would normally sit: between the 12 mark
+    // and the centre. Under the hands, so it never hides the time.
     Text {
-      id: codeLabel
+      id: cityLabel
 
       anchors.horizontalCenter: parent.horizontalCenter
       y: dial.height * 0.19
-      text: root.code
-      color: Util.alpha(root.inkColor, 0.6)
+      text: root.city
+      color: Util.alpha(root.inkColor, 0.9)
       font.family: Style.font.family
-      font.pixelSize: Math.round(dial.height * 0.10)
+      font.pixelSize: Style.font.caption
       font.bold: true
-      font.letterSpacing: Math.max(0.5, dial.width * 0.008)
+      font.letterSpacing: Math.max(0.5, dial.width * 0.006)
     }
 
     // Hour hand. It creeps with the minutes even though the face only

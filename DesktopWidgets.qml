@@ -20,7 +20,7 @@ Item {
   readonly property int pad: Style.space(12)
   readonly property int boxSize: Style.space(24)
   readonly property int boxGap: Style.space(4)
-  readonly property int dialSize: Style.space(120)
+  readonly property int dialSize: Style.space(100)
 
   // Machine name. Env first, /etc/hostname authoritative fallback.
   property string hostname: Quickshell.env("HOSTNAME") || ""
@@ -37,10 +37,10 @@ Item {
   //      saving is whatever the machine says it is — Toronto and Miami share
   //      a zone, Zurich has its own, Tokyo never changes.
   readonly property var cities: [
-    { code: "ZRH", zone: "Europe/Zurich" },
-    { code: "YYZ", zone: "America/Toronto" },
-    { code: "MIA", zone: "America/New_York" },
-    { code: "TYO", zone: "Asia/Tokyo" }
+    { name: "Zurich", zone: "Europe/Zurich" },
+    { name: "Toronto", zone: "America/Toronto" },
+    { name: "Miami", zone: "America/New_York" },
+    { name: "Tokyo", zone: "Asia/Tokyo" }
   ]
 
   // Wall-clock hours/minutes per city, in `cities` order. Seeded with local
@@ -235,7 +235,7 @@ Item {
                 required property var modelData
                 required property int index
 
-                code: modelData.code
+                city: modelData.name
                 dialSize: root.dialSize
                 hours: root.zoneTimes[index] ? root.zoneTimes[index].hours : 0
                 minutes: root.zoneTimes[index] ? root.zoneTimes[index].minutes : 0

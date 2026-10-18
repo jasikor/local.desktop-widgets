@@ -23,20 +23,20 @@ Item {
   readonly property color rimColor: daytime ? Util.alpha("#1b1b19", 0.25)
                                               : Util.alpha("#e9e7e0", 0.20)
 
-  // IWC Mark XX "Le Petit Prince" hands: gold-plated frames filled with
-  // Super-LumiNova. Daytime needs a deeper bronze to stay legible on the
-  // stone face; at night the gold is allowed to shine.
-  readonly property color handFrameColor: daytime ? "#6f5327" : "#c9a45c"
-  readonly property color lumeColor: "#fbf9f0"
+  // Black-and-white pilot hands in the Mark XX leaf shape: a black frame
+  // around a white lume inlay, with a constant frame width along the blade.
+  readonly property color handFrameColor: "#111112"
+  readonly property color lumeColor: "#f8f6ef"
 
   implicitWidth: dialSize
   implicitHeight: dialSize
   width: implicitWidth
   height: implicitHeight
 
-  // One IWC-style hand, pointing at 12. Lengths are fractions of the dial:
-  // a thin gold stem leaves the centre, then flares into a leaf-shaped blade
-  // whose pointed luminous inlay tapers to a tip short of the gold point.
+  // One IWC-style hand, pointing at 12. A thin stem leaves the centre, flares
+  // into a leaf-shaped blade, then tapers to a point. The lume is the blade
+  // outline inset by a fixed border, so the black edge never grows thicker
+  // towards the centre.
   component PilotHand: Item {
     id: hand
 
@@ -44,15 +44,13 @@ Item {
     rotation: hand.angle
 
     property real angle: 0
-    property real handLength: 0.285
-    property real stemHalf: 0.014
-    property real stemEnd: 0.12
-    property real bladeHalf: 0.038
-    property real shoulder: 0.155
-    property real lumeStart: 0.13
-    property real lumeHalf: 0.026
-    property real lumeShoulder: 0.19
-    property real lumeTip: 0.272
+    property real handLength: 0.29
+    property real stemHalf: 0.013
+    property real stemEnd: 0.075
+    property real bladeHalf: 0.044
+    property real shoulder: 0.14
+    property real lumeStart: 0.085
+    property real frameBorder: 0.010
 
     Canvas {
       id: handCanvas
@@ -72,27 +70,54 @@ Item {
         var cx = d / 2
         var cy = d / 2
 
+        var length = hand.handLength
+        var stem = hand.stemHalf
+        var stemEnd = hand.stemEnd
+        var blade = hand.bladeHalf
+        var shoulder = hand.shoulder
+        var border = hand.frameBorder
+
+        // Half-width of the gold/black frame at a distance `h` from centre.
+        function frameHalfAt(h) {
+          if (h <= stemEnd) return stem
+          if (h <= shoulder) return stem + (blade - stem) * (h - stemEnd) / (shoulder - stemEnd)
+          return blade * (length - h) / (length - shoulder)
+        }
+
         ctx.clearRect(0, 0, width, height)
 
-        // Gold frame: stem, flare, then a long taper to the point.
+        // Frame: stem, flare, long taper to the point.
         ctx.beginPath()
-        ctx.moveTo(cx - hand.stemHalf * d, cy + 0.012 * d)
-        ctx.lineTo(cx - hand.stemHalf * d, cy - hand.stemEnd * d)
-        ctx.lineTo(cx - hand.bladeHalf * d, cy - hand.shoulder * d)
-        ctx.lineTo(cx, cy - hand.handLength * d)
-        ctx.lineTo(cx + hand.bladeHalf * d, cy - hand.shoulder * d)
-        ctx.lineTo(cx + hand.stemHalf * d, cy - hand.stemEnd * d)
-        ctx.lineTo(cx + hand.stemHalf * d, cy + 0.012 * d)
+        ctx.moveTo(cx - stem * d, cy + 0.012 * d)
+        ctx.lineTo(cx - stem * d, cy - stemEnd * d)
+        ctx.lineTo(cx - blade * d, cy - shoulder * d)
+        ctx.lineTo(cx, cy - length * d)
+        ctx.lineTo(cx + blade * d, cy - shoulder * d)
+        ctx.lineTo(cx + stem * d, cy - stemEnd * d)
+        ctx.lineTo(cx + stem * d, cy + 0.012 * d)
         ctx.closePath()
         ctx.fillStyle = handCanvas.frameColour
         ctx.fill()
 
-        // Luminous inlay, pointed at both ends like the Mark XX hand.
+        // Lume: the same blade inset by a constant border. It starts in a
+        // point on the axis and ends where the frame has narrowed to twice
+        // the border, leaving a pointed frame tip.
+        var tip = length - border * (length - shoulder) / blade
+        var start = hand.lumeStart
+        var step = 0.004
+        var h
+
         ctx.beginPath()
-        ctx.moveTo(cx, cy - hand.lumeStart * d)
-        ctx.lineTo(cx - hand.lumeHalf * d, cy - hand.lumeShoulder * d)
-        ctx.lineTo(cx, cy - hand.lumeTip * d)
-        ctx.lineTo(cx + hand.lumeHalf * d, cy - hand.lumeShoulder * d)
+        ctx.moveTo(cx, cy - start * d)
+        for (h = start + step; h < tip; h += step) {
+          var half = Math.max(0, frameHalfAt(h) - border)
+          ctx.lineTo(cx - half * d, cy - h * d)
+        }
+        ctx.lineTo(cx, cy - tip * d)
+        for (h = tip - step; h > start; h -= step) {
+          var halfBack = Math.max(0, frameHalfAt(h) - border)
+          ctx.lineTo(cx + halfBack * d, cy - h * d)
+        }
         ctx.closePath()
         ctx.fillStyle = root.lumeColor
         ctx.fill()
@@ -163,34 +188,38 @@ Item {
       handLength: 0.29
       stemHalf: 0.013
       stemEnd: 0.075
-      bladeHalf: 0.042
+      bladeHalf: 0.044
       shoulder: 0.14
-      lumeStart: 0.10
-      lumeHalf: 0.030
-      lumeShoulder: 0.15
-      lumeTip: 0.278
+      lumeStart: 0.085
+      frameBorder: 0.010
     }
 
-    // Minute hand: longer and only slightly narrower, with the same flare.
+    // Minute hand: longer and narrower, same leaf profile and border.
     PilotHand {
       angle: root.minutes * 6
       handLength: 0.39
       stemHalf: 0.010
       stemEnd: 0.10
-      bladeHalf: 0.026
+      bladeHalf: 0.030
       shoulder: 0.16
-      lumeStart: 0.125
-      lumeHalf: 0.015
-      lumeShoulder: 0.17
-      lumeTip: 0.378
+      lumeStart: 0.115
+      frameBorder: 0.0075
     }
 
     Rectangle {
       anchors.centerIn: parent
-      width: Math.max(5, dial.width * 0.085)
+      width: Math.max(5, dial.width * 0.08)
       height: width
       radius: width / 2
       color: root.handFrameColor
+
+      Rectangle {
+        anchors.centerIn: parent
+        width: Math.max(2, dial.width * 0.022)
+        height: width
+        radius: width / 2
+        color: root.lumeColor
+      }
     }
   }
 }

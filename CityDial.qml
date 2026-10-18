@@ -45,12 +45,12 @@ Item {
 
     property real angle: 0
     property real handLength: 0.29
-    property real stemHalf: 0.013
+    property real stemHalf: 0.011
     property real stemEnd: 0.075
-    property real bladeHalf: 0.044
-    property real shoulder: 0.14
-    property real lumeStart: 0.085
-    property real frameBorder: 0.010
+    property real bladeHalf: 0.046
+    property real shoulder: 0.11
+    property real lumeStart: 0.095
+    property real frameBorder: 0.007
 
     Canvas {
       id: handCanvas
@@ -77,38 +77,43 @@ Item {
         var shoulder = hand.shoulder
         var border = hand.frameBorder
 
-        // Half-width of the gold/black frame at a distance `h` from centre.
+        // Half-width of the frame at a distance `h` from the centre. The
+        // blade uses a convex taper: it stays wide through the middle and
+        // sharpens over the last third, like the reference hands.
         function frameHalfAt(h) {
           if (h <= stemEnd) return stem
           if (h <= shoulder) return stem + (blade - stem) * (h - stemEnd) / (shoulder - stemEnd)
-          return blade * (length - h) / (length - shoulder)
+          return blade * Math.pow((length - h) / (length - shoulder), 0.7)
         }
+
+        var step = 0.004
+        var h
 
         ctx.clearRect(0, 0, width, height)
 
-        // Frame: stem, flare, long taper to the point.
+        // Frame: stem, flare, then the convex blade to a sharp point.
         ctx.beginPath()
         ctx.moveTo(cx - stem * d, cy + 0.012 * d)
         ctx.lineTo(cx - stem * d, cy - stemEnd * d)
-        ctx.lineTo(cx - blade * d, cy - shoulder * d)
+        for (h = stemEnd + step; h < length - step; h += step)
+          ctx.lineTo(cx - frameHalfAt(h) * d, cy - h * d)
         ctx.lineTo(cx, cy - length * d)
-        ctx.lineTo(cx + blade * d, cy - shoulder * d)
+        for (h = length - step; h > stemEnd; h -= step)
+          ctx.lineTo(cx + frameHalfAt(h) * d, cy - h * d)
         ctx.lineTo(cx + stem * d, cy - stemEnd * d)
         ctx.lineTo(cx + stem * d, cy + 0.012 * d)
         ctx.closePath()
         ctx.fillStyle = handCanvas.frameColour
         ctx.fill()
 
-        // Lume: the same blade inset by a constant border. It starts in a
-        // point on the axis and ends where the frame has narrowed to twice
-        // the border, leaving a pointed frame tip.
-        var tip = length - border * (length - shoulder) / blade
+        // Lume: the same blade inset by a constant border, with a blunt base
+        // and a point short of the frame tip.
+        var tip = length - (length - shoulder) * Math.pow(border / blade, 1 / 0.7)
         var start = hand.lumeStart
-        var step = 0.004
-        var h
+        var baseHalf = Math.max(0, frameHalfAt(start) - border)
 
         ctx.beginPath()
-        ctx.moveTo(cx, cy - start * d)
+        ctx.moveTo(cx - baseHalf * d, cy - start * d)
         for (h = start + step; h < tip; h += step) {
           var half = Math.max(0, frameHalfAt(h) - border)
           ctx.lineTo(cx - half * d, cy - h * d)
@@ -118,6 +123,7 @@ Item {
           var halfBack = Math.max(0, frameHalfAt(h) - border)
           ctx.lineTo(cx + halfBack * d, cy - h * d)
         }
+        ctx.lineTo(cx + baseHalf * d, cy - start * d)
         ctx.closePath()
         ctx.fillStyle = root.lumeColor
         ctx.fill()
@@ -186,24 +192,24 @@ Item {
     PilotHand {
       angle: (root.hours % 12) * 30 + root.minutes * 0.5
       handLength: 0.29
-      stemHalf: 0.013
+      stemHalf: 0.011
       stemEnd: 0.075
-      bladeHalf: 0.044
-      shoulder: 0.14
-      lumeStart: 0.085
-      frameBorder: 0.010
+      bladeHalf: 0.046
+      shoulder: 0.11
+      lumeStart: 0.095
+      frameBorder: 0.007
     }
 
     // Minute hand: longer and narrower, same leaf profile and border.
     PilotHand {
       angle: root.minutes * 6
       handLength: 0.39
-      stemHalf: 0.010
+      stemHalf: 0.009
       stemEnd: 0.10
-      bladeHalf: 0.030
-      shoulder: 0.16
-      lumeStart: 0.115
-      frameBorder: 0.0075
+      bladeHalf: 0.034
+      shoulder: 0.13
+      lumeStart: 0.12
+      frameBorder: 0.005
     }
 
     Rectangle {

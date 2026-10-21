@@ -15,10 +15,12 @@ The tile shows:
   Click a number to switch.
 - **World clocks** — four analog watches, one below the other, each with its
   city name on the dial (Zurich, Toronto, Miami, Tokyo). Plain solid baton
-  hands, dark on the day face and light at night, twelve ticks, no numerals,
-  date or seconds hand. The dial is dim warm grey while it is daytime in that
-  city (07:00–21:00) and dark grey at night, so the tile doubles as a "who is
-  awake" map.
+  hands, twelve ticks, no numerals, date or seconds hand, and one charcoal face
+  at every hour so the hands always keep the same contrast. A small 24-hour
+  GMT subdial straddles the dial edge at four-thirty: one thin hand sweeping
+  once a day (`00:00` top, `06:00` right, `12:00` bottom, `18:00` left) over
+  four quarter dots. It reads the city's own 24-hour time, so each dial shows
+  whether it is morning or evening there.
 
 ## How it works
 
@@ -52,9 +54,9 @@ omarchy plugin add https://github.com/jasikor/local.desktop-widgets --enable
 ## Configure
 
 The layout is deliberately small; adjust the constants at the top of
-`DesktopWidgets.qml` and `CityDial.qml`. Changing a value hot-reloads on save;
-adding or removing whole components needs `omarchy restart shell` because the
-panel window itself is not rebuilt by a hot reload.
+`DesktopWidgets.qml` and `CityDial.qml`. Run `omarchy restart shell` afterwards:
+this tile is a desktop panel window and does not pick up edits through the
+plugin hot reload, even for a single value.
 
 | Constant   | Default            | Description                                             |
 |------------|--------------------|---------------------------------------------------------|
@@ -63,12 +65,17 @@ panel window itself is not rebuilt by a hot reload.
 | `boxGap`   | `Style.space(4)`   | Gap between workspace number boxes.                     |
 | `margins.left` | `Style.space(48)` | Distance from the left screen edge.                  |
 | `dialSize` | `Style.space(100)` | Diameter of a world-clock dial (`CityDial.qml`).        |
+| `subdialSize` | `dialSize * 0.26` | Diameter of the 24-hour GMT subdial.                 |
 
 The clock cities and their IANA zones live in the `cities` array at the top of
 `DesktopWidgets.qml`; the watches are rendered by `CityDial.qml`. Times are
 read once a minute with `TZ=<zone> date`, so daylight saving follows the
-system's zoneinfo rather than hardcoded offsets. Day is 07:00–21:00 city time;
-change the `daytime` binding in `CityDial.qml` to move that boundary.
+system's zoneinfo rather than hardcoded offsets. The dial colours are fixed, so
+a dark dial says nothing about the hour. Instead, the GMT subdial hand sweeps
+`rotation = dayMinutes / 1440 * 360` with midnight at the top, which makes
+morning and evening distinguishable: the right half is 00:00–12:00, the left
+half 12:00–24:00. The dial size is `dialSize` in `DesktopWidgets.qml`; the
+subdial is `subdialSize` in `CityDial.qml`.
 
 All ten workspaces (`1`–`10`) are always shown, laid out 5-per-row so the grid
 reads `0 1 2 3 4` / `5 6 7 8 9`. Workspace `10` is labelled `0` and leads, then

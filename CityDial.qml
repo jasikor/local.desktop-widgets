@@ -1,19 +1,20 @@
 import QtQuick
 import qs.Commons
 
-// One analog watch: hour and minute batons, twelve ticks, no numerals, no
-// seconds, no date, plus a small 24-hour GMT subdial at four-thirty that
-// straddles the dial edge. The 12-hour hands cannot say whether it is morning
-// or evening; the subdial hand can, because it sweeps once a day: 00:00 at the
-// top, 06:00 on the right, 12:00 at the bottom and 18:00 on the left. One
-// charcoal face at every hour, so the four watches keep the same contrast
-// whatever time it is in their city.
+// One analog watch: hour and minute batons, twelve ticks, no hour numerals,
+// no seconds, plus a date window at three o'clock and a small 24-hour GMT
+// subdial at four-thirty that straddles the dial edge. The 12-hour hands
+// cannot say whether it is morning or evening; the subdial hand can, because
+// it sweeps once a day: 00:00 at the top, 06:00 on the right, 12:00 at the
+// bottom and 18:00 on the left. One charcoal face at every hour, so the four
+// watches keep the same contrast whatever time it is in their city.
 Item {
   id: root
 
   property string city: ""
   property int hours: 0
   property int minutes: 0
+  property int day: 1
   property real dialSize: Style.space(100)
 
   // Muted faces: charcoal rather than black, and warm off-white ink, so four
@@ -29,13 +30,18 @@ Item {
   // Minutes since local midnight, 0..1439, for the 24-hour subdial hand.
   readonly property real dayMinutes: (hours % 24) * 60 + minutes
 
+  // Date window at three o'clock, on the city's own calendar day.
+  readonly property real dateWidth: dialSize * 0.18
+  readonly property real dateHeight: dialSize * 0.14
+  readonly property real dateCenterX: dialSize * 0.87
+
   // GMT subdial at four-thirty: a small circle that sits half on the dial and
   // half over the card, with its own quarter dots.
   readonly property real subdialSize: dialSize * 0.26
   readonly property real subdialCenterX: dialSize * 0.85
   readonly property real subdialCenterY: dialSize * 0.85
-  readonly property color subdialFaceColor: "#000000"
-  readonly property color subdialRimColor: Util.alpha(inkColor, 0.32)
+  readonly property color recessColor: "#000000"
+  readonly property color recessRimColor: Util.alpha(inkColor, 0.32)
   readonly property real subdialDotRadius: subdialSize / 2 - Style.space(2)
 
   implicitWidth: dialSize
@@ -73,9 +79,9 @@ Item {
         Rectangle {
           readonly property bool major: index % 3 === 0
 
-          // Four and five o'clock give way to the GMT subdial straddling the
-          // rim between them.
-          visible: index !== 4 && index !== 5
+          // Three o'clock belongs to the date window; four and five give way
+          // to the GMT subdial straddling the rim between them.
+          visible: index !== 3 && index !== 4 && index !== 5
           x: (dial.width - width) / 2
           y: dial.height * 0.09
           width: major ? Math.max(1, dial.width * 0.022) : Math.max(1, dial.width * 0.012)
@@ -102,6 +108,31 @@ Item {
       font.letterSpacing: Math.max(0.5, dial.width * 0.006)
     }
 
+    // Date window at three o'clock: the city's own day of the month, cut into
+    // the dial like the subdial. It takes the place of the three o'clock tick
+    // and follows the zone, so Tokyo can be a day ahead of Toronto.
+    Rectangle {
+      id: dateWindow
+
+      width: root.dateWidth
+      height: root.dateHeight
+      x: root.dateCenterX - width / 2
+      y: dial.height / 2 - height / 2
+      radius: Math.max(1, dial.width * 0.015)
+      color: root.recessColor
+      border.width: Math.max(1, Style.space(1))
+      border.color: root.recessRimColor
+
+      Text {
+        anchors.centerIn: parent
+        text: root.day
+        color: Util.alpha(root.inkColor, 0.9)
+        font.family: Style.font.family
+        font.pixelSize: Math.max(7, Math.round(dial.width * 0.115))
+        font.bold: true
+      }
+    }
+
     // GMT subdial: a small circle straddling the rim at four-thirty, with one
     // thin 24-hour hand and four quarter dots for its scale. Midnight at the
     // top, one turn per day, so the right half is morning and the left half
@@ -117,9 +148,9 @@ Item {
       Rectangle {
         anchors.fill: parent
         radius: width / 2
-        color: root.subdialFaceColor
+        color: root.recessColor
         border.width: Math.max(1, Style.space(1))
-        border.color: root.subdialRimColor
+        border.color: root.recessRimColor
       }
 
       Repeater {

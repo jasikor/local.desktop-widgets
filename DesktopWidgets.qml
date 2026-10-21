@@ -43,14 +43,15 @@ Item {
     { name: "Tokyo", zone: "Asia/Tokyo" }
   ]
 
-  // Wall-clock hours/minutes per city, in `cities` order. Seeded with local
-  // time so the first paint is a plausible clock rather than 12:00.
+  // Wall-clock hours/minutes/day per city, in `cities` order. Seeded with
+  // local time so the first paint is a plausible clock rather than 12:00.
   property var zoneTimes: root.seedZoneTimes()
 
   function seedZoneTimes() {
     var now = new Date()
     var seed = []
-    for (var i = 0; i < cities.length; i++) seed.push({ hours: now.getHours(), minutes: now.getMinutes() })
+    for (var i = 0; i < cities.length; i++)
+      seed.push({ hours: now.getHours(), minutes: now.getMinutes(), day: now.getDate() })
     return seed
   }
 
@@ -67,7 +68,7 @@ Item {
     command: {
       var calls = []
       for (var i = 0; i < root.cities.length; i++)
-        calls.push("TZ=\"" + root.cities[i].zone + "\" date '+%H %M'")
+        calls.push("TZ=\"" + root.cities[i].zone + "\" date '+%H %M %d'")
       return ["sh", "-c", calls.join("; ")]
     }
 
@@ -82,8 +83,9 @@ Item {
           var parts = lines[i].trim().split(/\s+/)
           var h = parseInt(parts[0], 10)
           var m = parseInt(parts[1], 10)
-          if (isNaN(h) || isNaN(m)) return
-          parsed.push({ hours: h, minutes: m })
+          var d = parseInt(parts[2], 10)
+          if (isNaN(h) || isNaN(m) || isNaN(d)) return
+          parsed.push({ hours: h, minutes: m, day: d })
         }
         root.zoneTimes = parsed
       }
@@ -239,6 +241,7 @@ Item {
                 dialSize: root.dialSize
                 hours: root.zoneTimes[index] ? root.zoneTimes[index].hours : 0
                 minutes: root.zoneTimes[index] ? root.zoneTimes[index].minutes : 0
+                day: root.zoneTimes[index] ? root.zoneTimes[index].day : 1
               }
             }
           }

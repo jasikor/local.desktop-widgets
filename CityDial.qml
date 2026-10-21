@@ -22,9 +22,9 @@ Item {
   readonly property color inkColor: "#e9e7e0"
   readonly property color rimColor: Util.alpha(inkColor, 0.28)
 
-  // The GMT subdial hand is a shade dimmer than the batons: shape and size
-  // already set it apart, so it does not need a second colour on the dial.
-  readonly property color gmtColor: Util.alpha(inkColor, 0.85)
+  // The GMT subdial hand is deliberately quieter than the batons: shorter,
+  // slimmer and dimmer, so the small dial never competes with the time.
+  readonly property color gmtColor: Util.alpha(inkColor, 0.60)
 
   // Minutes since local midnight, 0..1439, for the 24-hour subdial hand.
   readonly property real dayMinutes: (hours % 24) * 60 + minutes
@@ -34,7 +34,7 @@ Item {
   readonly property real subdialSize: dialSize * 0.26
   readonly property real subdialCenterX: dialSize * 0.85
   readonly property real subdialCenterY: dialSize * 0.85
-  readonly property color subdialFaceColor: "#232325"
+  readonly property color subdialFaceColor: "#000000"
   readonly property color subdialRimColor: Util.alpha(inkColor, 0.32)
   readonly property real subdialDotRadius: subdialSize / 2 - Style.space(2)
 
@@ -138,7 +138,7 @@ Item {
             height: width
             radius: width / 2
             color: root.inkColor
-            opacity: 0.7
+            opacity: 0.5
           }
         }
       }
@@ -151,7 +151,7 @@ Item {
           x: (gmtSubdial.width - width) / 2
           y: gmtSubdial.height / 2 - height
           width: Math.max(2, Math.round(root.subdialSize * 0.06))
-          height: root.subdialSize * 0.40
+          height: root.subdialSize * 0.33
           radius: width / 2
           color: root.gmtColor
         }

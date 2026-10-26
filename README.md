@@ -13,16 +13,16 @@ The tile shows:
   workspace 10, `1`–`9` are workspaces 1–9. The focused workspace is filled
   with the accent colour, occupied ones are outlined, empty ones are dimmed.
   Click a number to switch.
-- **World clocks** — four analog watches, one below the other, each with its
-  city name on the dial (Zurich, Toronto, Miami, Tokyo). Plain solid baton
-  hands, twelve ticks, no numerals, date or seconds hand, and one charcoal face
-  at every hour so the hands always keep the same contrast. A black date
-  window at three o'clock shows that city's day of the month, so Tokyo can
-  read a day ahead of Toronto. A small 24-hour GMT subdial straddles the dial
-  edge at four-thirty: one thin hand sweeping once a day (`00:00` top, `06:00`
-  right, `12:00` bottom, `18:00` left) over four quarter dots. It reads the
-  city's own 24-hour time, so each dial shows whether it is morning or evening
-  there.
+- **World clocks** — five analog watches, one below the other, each with its
+  city name on the dial (Zurich, Toronto, Panama, Mexico, Tokyo). Plain solid
+  baton hands, twelve ticks, no numerals, date or seconds hand, and one
+  charcoal face at every hour so the hands always keep the same contrast. A
+  black date window at three o'clock shows that city's day of the month, so
+  Tokyo can read a day ahead of Toronto. A small 24-hour GMT subdial straddles
+  the dial edge at four-thirty: one thin hand sweeping once a day (`00:00` top,
+  `06:00` right, `12:00` bottom, `18:00` left) over four quarter dots. It reads
+  the city's own 24-hour time, so each dial shows whether it is morning or
+  evening there.
 
 ## How it works
 

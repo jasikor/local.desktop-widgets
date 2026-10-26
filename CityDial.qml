@@ -6,7 +6,7 @@ import qs.Commons
 // subdial at four-thirty that straddles the dial edge. The 12-hour hands
 // cannot say whether it is morning or evening; the subdial hand can, because
 // it sweeps once a day: 00:00 at the top, 06:00 on the right, 12:00 at the
-// bottom and 18:00 on the left. One charcoal face at every hour, so the four
+// bottom and 18:00 on the left. One charcoal face at every hour, so all five
 // watches keep the same contrast whatever time it is in their city.
 Item {
   id: root

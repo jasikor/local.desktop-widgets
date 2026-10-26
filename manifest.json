@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "id": "local.desktop-widgets",
   "name": "Desktop widgets",
-  "version": "1.3.12",
+  "version": "1.4.0",
   "author": "jasikor",
-  "description": "A single desktop tile: machine name, a waybar-style workspace switcher and four analog world clocks, drawn on the desktop behind windows",
+  "description": "A single desktop tile: machine name, a waybar-style workspace switcher and five analog world clocks, drawn on the desktop behind windows",
   "kinds": ["panel"],
   "keepLoaded": true,
   "entryPoints": { "panel": "DesktopWidgets.qml" }

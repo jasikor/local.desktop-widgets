@@ -32,15 +32,17 @@ Item {
     onLoaded: root.hostname = String(text() || "").trim()
   }
 
-  // ---- World clocks. Four cities, four analog dials. Times come from the
+  // ---- World clocks. Five cities, five analog dials. Times come from the
   //      system zoneinfo rather than hardcoded UTC offsets, so daylight
-  //      saving is whatever the machine says it is — Toronto and Miami share
-  //      a zone, Zurich has its own, Tokyo never changes.
+  //      saving is whatever the machine says it is — Toronto and Zurich
+  //      switch, Panama and Mexico do not (Mexico dropped it in 2022), and
+  //      Tokyo never changes.
   readonly property var cities: [
-    { name: "Zurich", zone: "Europe/Zurich" },
+    { name: "Zurich",  zone: "Europe/Zurich" },
     { name: "Toronto", zone: "America/Toronto" },
-    { name: "Miami", zone: "America/New_York" },
-    { name: "Tokyo", zone: "Asia/Tokyo" }
+    { name: "Panama",  zone: "America/Panama" },
+    { name: "Mexico",  zone: "America/Mexico_City" },
+    { name: "Tokyo",   zone: "Asia/Tokyo" }
   ]
 
   // Wall-clock hours/minutes/day per city, in `cities` order. Seeded with
@@ -59,8 +61,8 @@ Item {
     zonesProc.running = true
   }
 
-  // One process for all four cities: four tiny `date` calls, once a minute.
-  // Keeping it to a single process avoids four timers drifting apart. The
+  // One process for all five cities: five tiny `date` calls, once a minute.
+  // Keeping it to a single process avoids five timers drifting apart. The
   // command is built from `cities`, so the zone list has one source of truth.
   Process {
     id: zonesProc
@@ -225,7 +227,7 @@ Item {
             }
           }
 
-          // Four watches, one per city, stacked below the workspaces.
+          // Five watches, one per city, stacked below the workspaces.
           Column {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: Style.space(12)

@@ -94,12 +94,31 @@ Item {
     }
   }
 
-  SystemClock {
-    precision: SystemClock.Minutes
-    onDateChanged: root.refreshZoneTimes()
+  // Read the clock just *after* each wall-clock minute, then re-arm from the
+  // real time rather than adding a fixed 60 s. Quickshell's SystemClock
+  // schedules from local wall time and can land a few tenths of a second
+  // before the boundary; the probe then samples the outgoing minute and every
+  // dial stays a minute behind until the next tick. The margin keeps the probe
+  // on the right side of the rollover.
+  function armMinuteTimer() {
+    minuteTimer.interval = 60000 - (Date.now() % 60000) + 150
+    minuteTimer.restart()
   }
 
-  Component.onCompleted: root.refreshZoneTimes()
+  Timer {
+    id: minuteTimer
+    repeat: false
+    running: false
+    onTriggered: {
+      root.refreshZoneTimes()
+      root.armMinuteTimer()
+    }
+  }
+
+  Component.onCompleted: {
+    root.refreshZoneTimes()
+    root.armMinuteTimer()
+  }
 
   // All ten workspaces, always shown in two rows of five. Ordered 0-first so
   // the label matches the key you press: "0" is workspace 10 and leads, then

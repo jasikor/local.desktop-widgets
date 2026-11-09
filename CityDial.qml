@@ -1,13 +1,15 @@
 import QtQuick
 import qs.Commons
 
-// One analog watch: hour and minute batons, twelve ticks, no hour numerals,
-// no seconds, plus a date window at three o'clock and a small 24-hour GMT
-// subdial at four-thirty that straddles the dial edge. The 12-hour hands
-// cannot say whether it is morning or evening; the subdial hand can, because
-// it sweeps once a day: 00:00 at the top, 06:00 on the right, 12:00 at the
-// bottom and 18:00 on the left. One charcoal face at every hour, so all five
-// watches keep the same contrast whatever time it is in their city.
+// One analog watch: hour and minute batons, eleven ticks, no seconds, plus a
+// date window at three o'clock and a small 24-hour GMT subdial at
+// four-thirty that straddles the dial edge. The 12-hour hands cannot say
+// whether it is morning or evening, so the twelve o'clock mark is a numeral
+// instead of a tick: "0" during 18:00-05:59 and "12" during 06:00-17:59.
+// The subdial hand also shows the half of the day, because it sweeps once a
+// day: 00:00 at the top, 06:00 on the right, 12:00 at the bottom and 18:00 on
+// the left. One charcoal face at every hour, so all five watches keep the
+// same contrast whatever time it is in their city.
 Item {
   id: root
 
@@ -65,8 +67,8 @@ Item {
       border.color: root.rimColor
     }
 
-    // Twelve ticks, quarter marks a touch longer and stronger. Still no
-    // numerals: the dial is meant to be read at a glance, not studied.
+    // Eleven ticks, quarter marks a touch longer and stronger. Twelve o'clock
+    // is a numeral instead, so the dial still reads at a glance.
     Repeater {
       model: 12
 
@@ -79,9 +81,10 @@ Item {
         Rectangle {
           readonly property bool major: index % 3 === 0
 
-          // Three o'clock belongs to the date window; four and five give way
-          // to the GMT subdial straddling the rim between them.
-          visible: index !== 3 && index !== 4 && index !== 5
+          // Twelve o'clock is the am/pm numeral. Three o'clock belongs to the
+          // date window; four and five give way to the GMT subdial
+          // straddling the rim between them.
+          visible: index !== 0 && index !== 3 && index !== 4 && index !== 5
           x: (dial.width - width) / 2
           y: dial.height * 0.09
           width: major ? Math.max(1, dial.width * 0.022) : Math.max(1, dial.width * 0.012)
@@ -93,13 +96,27 @@ Item {
       }
     }
 
+    // Twelve o'clock: "0" through the night (18:00-05:59) and "12" through
+    // the day (06:00-17:59), so the 12-hour hands never leave am/pm in doubt.
+    Text {
+      id: noonMark
+
+      anchors.horizontalCenter: parent.horizontalCenter
+      y: dial.height * 0.04
+      text: (root.hours >= 18 || root.hours < 6) ? "0" : "12"
+      color: root.inkColor
+      font.family: Style.font.family
+      font.pixelSize: Math.max(9, Math.round(dial.width * 0.115))
+      font.bold: true
+    }
+
     // City name where a watch brand would normally sit: between the 12 mark
     // and the centre. Under the hands, so it never hides the time.
     Text {
       id: cityLabel
 
       anchors.horizontalCenter: parent.horizontalCenter
-      y: dial.height * 0.19
+      y: dial.height * 0.205
       text: root.city
       color: Util.alpha(root.inkColor, 0.9)
       font.family: Style.font.family

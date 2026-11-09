@@ -2,14 +2,11 @@ import QtQuick
 import qs.Commons
 
 // One analog watch: hour and minute batons, eleven ticks, no seconds, plus a
-// date window at three o'clock and a small 24-hour GMT subdial at
-// four-thirty that straddles the dial edge. The 12-hour hands cannot say
-// whether it is morning or evening, so the twelve o'clock mark is a numeral
-// instead of a tick: "0" during 18:00-05:59 and "12" during 06:00-17:59.
-// The subdial hand also shows the half of the day, because it sweeps once a
-// day: 00:00 at the top, 06:00 on the right, 12:00 at the bottom and 18:00 on
-// the left. One charcoal face at every hour, so all five watches keep the
-// same contrast whatever time it is in their city.
+// date window at three o'clock. The 12-hour hands cannot say whether it is
+// morning or evening, so the twelve o'clock mark is a sun during the day
+// (06:00-17:59) and a moon during the night (18:00-05:59). One black face at
+// every hour, so all five watches keep the same contrast whatever time it is
+// in their city.
 Item {
   id: root
 
@@ -19,32 +16,17 @@ Item {
   property int day: 1
   property real dialSize: Style.space(100)
 
-  // Muted faces: charcoal rather than black, and warm off-white ink, so four
-  // dials on one card do not glare against the wallpaper.
-  readonly property color faceColor: "#2a2a2d"
+  // Black faces with warm off-white ink, so four dials on one card stay quiet
+  // against the wallpaper.
+  readonly property color faceColor: "#000000"
   readonly property color inkColor: "#e9e7e0"
-  readonly property color rimColor: Util.alpha(inkColor, 0.28)
-
-  // The GMT subdial hand is deliberately quieter than the batons: shorter,
-  // slimmer and dimmer, so the small dial never competes with the time.
-  readonly property color gmtColor: Util.alpha(inkColor, 0.60)
-
-  // Minutes since local midnight, 0..1439, for the 24-hour subdial hand.
-  readonly property real dayMinutes: (hours % 24) * 60 + minutes
 
   // Date window at three o'clock, on the city's own calendar day.
   readonly property real dateWidth: dialSize * 0.18
   readonly property real dateHeight: dialSize * 0.14
   readonly property real dateCenterX: dialSize * 0.87
-
-  // GMT subdial at four-thirty: a small circle that sits half on the dial and
-  // half over the card, with its own quarter dots.
-  readonly property real subdialSize: dialSize * 0.26
-  readonly property real subdialCenterX: dialSize * 0.85
-  readonly property real subdialCenterY: dialSize * 0.85
   readonly property color recessColor: "#000000"
   readonly property color recessRimColor: Util.alpha(inkColor, 0.32)
-  readonly property real subdialDotRadius: subdialSize / 2 - Style.space(2)
 
   implicitWidth: dialSize
   implicitHeight: dialSize
@@ -63,8 +45,6 @@ Item {
       anchors.fill: parent
       radius: width / 2
       color: root.faceColor
-      border.width: Math.max(1, Style.space(1))
-      border.color: root.rimColor
     }
 
     // Eleven ticks, quarter marks a touch longer and stronger. Twelve o'clock
@@ -81,12 +61,11 @@ Item {
         Rectangle {
           readonly property bool major: index % 3 === 0
 
-          // Twelve o'clock is the am/pm numeral. Three o'clock belongs to the
-          // date window; four and five give way to the GMT subdial
-          // straddling the rim between them.
-          visible: index !== 0 && index !== 3 && index !== 4 && index !== 5
+          // Twelve o'clock is the sun/moon mark and three o'clock belongs to
+          // the date window, so neither gets a tick.
+          visible: index !== 0 && index !== 3
           x: (dial.width - width) / 2
-          y: dial.height * 0.09
+          y: dial.height * 0.055
           width: major ? Math.max(1, dial.width * 0.022) : Math.max(1, dial.width * 0.012)
           height: major ? dial.height * 0.07 : dial.height * 0.045
           radius: width / 2
@@ -96,18 +75,79 @@ Item {
       }
     }
 
-    // Twelve o'clock: "0" through the night (18:00-05:59) and "12" through
-    // the day (06:00-17:59), so the 12-hour hands never leave am/pm in doubt.
-    Text {
-      id: noonMark
+    // Twelve o'clock: a sun through the day (06:00-17:59) and a moon through
+    // the night (18:00-05:59), so the 12-hour hands never leave am/pm in
+    // doubt. Drawn from primitives rather than font glyphs, so it keeps the
+    // dial's ink exactly and scales with the dial.
+    Item {
+      id: dayMark
 
-      anchors.horizontalCenter: parent.horizontalCenter
-      y: dial.height * 0.04
-      text: (root.hours >= 18 || root.hours < 6) ? "0" : "12"
-      color: root.inkColor
-      font.family: Style.font.family
-      font.pixelSize: Math.max(9, Math.round(dial.width * 0.115))
-      font.bold: true
+      readonly property bool night: root.hours < 6 || root.hours >= 18
+      readonly property real markSize: dial.width * 0.17
+
+      width: markSize
+      height: markSize
+      x: (dial.width - width) / 2
+      y: dial.height * 0.035
+
+      // Sun: a filled disc with eight rounded rays.
+      Item {
+        anchors.fill: parent
+        visible: !dayMark.night
+
+        Rectangle {
+          anchors.centerIn: parent
+          width: parent.width * 0.42
+          height: width
+          radius: width / 2
+          color: root.inkColor
+        }
+
+        Repeater {
+          model: 8
+
+          Item {
+            required property int index
+
+            anchors.fill: parent
+            rotation: index * 45
+
+            Rectangle {
+              x: (parent.width - width) / 2
+              y: 0
+              width: Math.max(1, Math.round(parent.width * 0.055))
+              height: parent.height * 0.19
+              radius: width / 2
+              color: root.inkColor
+            }
+          }
+        }
+      }
+
+      // Moon: a crescent, a disc with a second disc of face colour cut out of
+      // its upper right.
+      Item {
+        anchors.fill: parent
+        visible: dayMark.night
+
+        Rectangle {
+          x: parent.width * 0.18
+          y: (parent.height - height) / 2
+          width: parent.width * 0.62
+          height: width
+          radius: width / 2
+          color: root.inkColor
+        }
+
+        Rectangle {
+          x: parent.width * 0.40
+          y: parent.height * 0.16
+          width: parent.width * 0.56
+          height: width
+          radius: width / 2
+          color: root.faceColor
+        }
+      }
     }
 
     // City name where a watch brand would normally sit: between the 12 mark
@@ -116,7 +156,7 @@ Item {
       id: cityLabel
 
       anchors.horizontalCenter: parent.horizontalCenter
-      y: dial.height * 0.205
+      y: dial.height * 0.215
       text: root.city
       color: Util.alpha(root.inkColor, 0.9)
       font.family: Style.font.family
@@ -126,8 +166,8 @@ Item {
     }
 
     // Date window at three o'clock: the city's own day of the month, cut into
-    // the dial like the subdial. It takes the place of the three o'clock tick
-    // and follows the zone, so Tokyo can be a day ahead of Toronto.
+    // the dial. It takes the place of the three o'clock tick and follows the
+    // zone, so Tokyo can be a day ahead of Toronto.
     Rectangle {
       id: dateWindow
 
@@ -147,70 +187,6 @@ Item {
         font.family: Style.font.family
         font.pixelSize: Math.max(7, Math.round(dial.width * 0.115))
         font.bold: true
-      }
-    }
-
-    // GMT subdial: a small circle straddling the rim at four-thirty, with one
-    // thin 24-hour hand and four quarter dots for its scale. Midnight at the
-    // top, one turn per day, so the right half is morning and the left half
-    // evening.
-    Item {
-      id: gmtSubdial
-
-      width: root.subdialSize
-      height: width
-      x: root.subdialCenterX - width / 2
-      y: root.subdialCenterY - height / 2
-
-      Rectangle {
-        anchors.fill: parent
-        radius: width / 2
-        color: root.recessColor
-        border.width: Math.max(1, Style.space(1))
-        border.color: root.recessRimColor
-      }
-
-      Repeater {
-        model: 4
-
-        Item {
-          required property int index
-
-          anchors.fill: parent
-          rotation: index * 90
-
-          Rectangle {
-            x: (gmtSubdial.width - width) / 2
-            y: gmtSubdial.height / 2 - root.subdialDotRadius - height / 2
-            width: Math.max(2, Math.round(root.subdialSize * 0.07))
-            height: width
-            radius: width / 2
-            color: root.inkColor
-            opacity: 0.5
-          }
-        }
-      }
-
-      Item {
-        anchors.fill: parent
-        rotation: root.dayMinutes / 1440 * 360
-
-        Rectangle {
-          x: (gmtSubdial.width - width) / 2
-          y: gmtSubdial.height / 2 - height
-          width: Math.max(2, Math.round(root.subdialSize * 0.06))
-          height: root.subdialSize * 0.33
-          radius: width / 2
-          color: root.gmtColor
-        }
-      }
-
-      Rectangle {
-        anchors.centerIn: parent
-        width: Math.max(2, Math.round(root.subdialSize * 0.075))
-        height: width
-        radius: width / 2
-        color: root.gmtColor
       }
     }
 
